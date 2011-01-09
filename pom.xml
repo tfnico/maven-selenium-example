@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>no.objectware.examples.selenium</groupId>
+	<artifactId>maven-selenium-example</artifactId>
+	<packaging>war</packaging>
+	<name>maven-selenium-example Maven Webapp</name>
+	<version>1.0-SNAPSHOT</version>
+	<url>http://maven.apache.org</url>
+	<build>
+		<finalName>maven-selenium-example</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+				<configuration>
+					<connectors>
+						<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+							<port>8080</port>
+							<maxIdleTime>60000</maxIdleTime>
+						</connector>
+					</connectors>
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>web-test</id>
+			<build>
+				<!-- Web test plugins -->
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.cargo</groupId>
+						<artifactId>cargo-maven2-plugin</artifactId>
+						<configuration>
+							<!-- If the web tests are failing and you want to see what cargo starts manually, set this to true and run the selenese goal seperately -->
+							<wait>false</wait>
+							<container>
+								<type>embedded</type>
+							</container>
+						</configuration>
+						<executions>
+							<execution>
+								<id>start-container</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop-container</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>selenium-maven-plugin</artifactId>
+						<version>1.0-beta-2-SNAPSHOT</version>
+						<executions>
+							<!-- Sart Xvfb for headless X -->
+							<!--
+								<execution>
+								<id>xvfb</id>
+								<phase>pre-integration-test</phase>
+								<configuration>
+								<display>:0</display>
+								</configuration>
+								<goals>
+								<goal>xvfb</goal>
+								</goals>
+								</execution>
+							-->
+							<!-- Firefox run -->
+							<execution>
+								<id>run-selenium-tests</id>
+								<phase>integration-test</phase>
+								<goals>
+									<goal>selenese</goal>
+								</goals>
+								<configuration>
+									<suite>src/test/selenium/TestSuite.html</suite>
+									<browser>*firefox</browser>
+									<!-- Use the line below to point to your firefox binary on a linux system 
+									<browser>*firefox /home/tfn/firefox/firefox-bin</browser>
+									 -->
+									<startURL>http://localhost:8080/maven-selenium-example/</startURL>
+								</configuration>
+							</execution>
+							<!-- Execution for running tests with Internet Explorere
+								<execution>
+								<id>run-selenium-tests-iexplore</id>
+								<phase>integration-test</phase>
+								<goals>
+								<goal>selenese</goal>
+								</goals>
+								<configuration>
+								<suite>src/selenium/TestSuite.html</suite>
+								<browser>*iexplore</browser>
+								<startURL>http://localhost:8080/web/</startURL>
+								</configuration>
+								</execution>
+							-->
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+
+						<configuration>
+							<!-- Skip the normal tests, we'll run web-tests in the integration-test phase -->
+							<skip>true</skip>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>integration-test</phase>
+								<goals>
+									<goal>test</goal>
+								</goals>
+								<configuration>
+									<skip>false</skip>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+
+			<!-- Note that these are some alternative repositories, but since it's all in test scope it doesn't matter -->
+			<pluginRepositories>
+				<!-- added for maven-plugin-management-plugin -->
+				<pluginRepository>
+					<id>codehaus</id>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+					<url>http://repository.codehaus.org/</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</pluginRepository>
+				<pluginRepository>
+					<id>codehaus-snapshots</id>
+					<name>Maven Codehaus Snapshots</name>
+					<url>
+						http://snapshots.maven.codehaus.org/maven2/
+					</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
