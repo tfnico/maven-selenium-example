@@ -1,0 +1,1 @@
+See http://blog.tfnico.com/2007/09/continous-web-testing-with-selenium_16.html. 
